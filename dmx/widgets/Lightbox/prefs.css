@@ -1,0 +1,72 @@
+@charset "utf-8";
+
+
+html {
+	display:block;
+	height:100%;
+}
+body {
+	background:#222 url(logo_dmx_bg.png) top right no-repeat fixed;
+	color:#777;
+	display:block;
+	height:100%;
+	width:100%;
+	zoom:1;
+	overflow:auto;
+}
+
+.textfield {
+	background:#333;
+	border:1px solid #000;
+	color:#CCC;
+	border-color: #000 #444 #444 #000;
+	width:60px;
+	-moz-border-radius:2px;
+	-webkit-border-radius:2px;
+	border-radius:2px;
+}
+
+
+select.textfield {
+	width:62px;
+}
+
+body, td, input, select {
+	font-family:Tahoma, Arial, Helvetica, sans-serif;
+	font-size:11px;
+}
+
+h1 {
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:19px;
+	font-weight:normal;
+	margin:0;
+	padding:0.4em 0 1.4em;
+}
+
+.button {
+	background:#333;
+	border:2px double #3c3c3c;
+	color:#999;
+	-webkit-border-radius:2px;
+	-moz-border-radius:3px;
+	-o-border-radius:2px;
+	border-radius:2px;
+	width:80px;
+	line-height:20px;
+	display:inline-block;
+	text-align:center;
+	text-decoration:none;
+	cursor:default;
+	outline:0px none;
+	margin:8px 2px;
+	font-weight:bold;
+}
+.button:hover {
+	background:#3C3C3C;
+	border-color:#555;
+	color:#F60;
+}
+b {
+	color:#CCC;
+}

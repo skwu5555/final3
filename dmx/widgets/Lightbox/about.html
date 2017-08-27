@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>DMXzone Lightbox</title>
+<style>
+html {
+	overflow:auto;
+}
+body {
+	background:url(lightbox_header_460.jpg) no-repeat;
+	background-color: #333;
+	color:#FFF;
+	padding: 20px;
+	font-family:Tahoma, Arial, Helvetica, sans-serif;
+	font-size:12px;
+	overflow:auto;
+	line-height:15px;
+	margin:0;
+}
+a {
+	color:#89F;
+	text-decoration:none;
+}
+a:hover {
+	text-decoration:underline;
+}
+#content {
+  position : absolute;
+  top      : 100px;
+	left     : 0;
+	width    : 458px;
+	height   : 170px;
+	padding  : 0;
+}
+p {
+	margin:0;
+	padding:0.5em 20px;
+	filter:none !important;
+}
+</style>
+</head>
+
+<body>
+<div id="content">
+	<p align="center">Version: <span id="version"></span></p>
+  <br />
+	<p>
+    The first ever Canvas based Lightbox control! With Canvas the design of your lightbox is fully drawn!
+    No more time consuming CSS tweaking and image editing to make your designs look good! Enjoy your
+    great Lighbox designed and drawn specially for you.
+  </p>
+  <br />
+  <p>
+    Product Page:
+    <a href="http://www.dmxzone.com/go?16607" target="_blank">http://www.dmxzone.com/go?16607</a>
+  </p>
+</div>
+<script language="javascript" type="text/javascript">
+<!--
+var LIGHTBOX = parent.parent.DMX.Lightbox.instance;
+
+LIGHTBOX.setMetaData({
+  width      : 459,
+  height     : 299,
+  keepAspect : false,
+  status     : ' ',
+	title      : 'About DMXzone Lightbox'
+});
+
+document.getElementById('version').innerHTML = LIGHTBOX.version;
+-->
+</script>
+</body>
+</html>

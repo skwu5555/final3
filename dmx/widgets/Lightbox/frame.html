@@ -1,0 +1,267 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="imagetoolbar" content="no" />
+<title></title>
+<style type="text/css">
+html {
+	display:block;
+	margin:0;
+	padding:0;
+	width:100%;
+	height:100%;
+	text-align:center;
+	vertical-align:middle;
+}
+body {
+	display:block;
+	margin:0;
+	padding:0;
+	width:100%;
+	height:100%;
+	text-align:center;
+	vertical-align:middle;
+	font-family:Tahoma, Arial, Helvetica, sans-serif;
+	font-size:12px;
+  background-color:transparent;
+}
+
+.content, .oldContent {
+	position: absolute;
+	left:0;
+	top:0;
+}
+.oldContent {
+	z-index:1;
+}
+.content {
+	z-index:2;
+  display:none;
+}
+.initial {
+	display:block !important;
+}
+.error {
+	background:#FFF;
+	color:#F00;
+	display:block;
+	padding:4px;
+	position:static !important;
+	height:100%;
+	max-height:100%;
+	vertical-align:middle;
+}
+.pdf {
+	background:#FFF;
+}
+</style>
+<script language="javascript" type="text/javascript" src="../../../ScriptLibrary/jquery-latest.pack.js"></script>
+<script language="javascript" type="text/javascript" src="../../../dmx/dmx.core.js"></script>
+<script language="javascript" type="text/javascript">
+var Lightbox = null; // will refer to parent.DMX.Lightbox.instance
+
+var FrameObserver = new DMX.Observer();
+
+function frameLoaded(frame) {
+  var src = frame.getAttribute('src');
+  if (src == 'javascript:void(0);') return;
+  var v = parseInt(String(jQuery.browser.version).replace('.', '').substr(0, 3), 10);
+  if (window.opera && v < 980) {
+    var absRoot = jQuery('<a href="/"/>')[0].href;
+    if (src.indexOf(absRoot) === 0) {
+      if (frame.location && frame.location != 'javascript:void(0);') {
+        FrameObserver.notify(frame, 'load');
+      }
+    } else {
+      FrameObserver.notify(frame, 'load');
+    }
+  } else {
+    FrameObserver.notify(frame, 'load');
+  }
+}
+
+function getParam(name) {
+	var result = '';
+	var data = document.location.search.replace(/^\?/, '').replace(/&amp;/gi, '&');
+	var m = data.match(new RegExp(name + '=([^&]*)'));
+	if (m && m[1]) {
+    result = m[1];
+  }
+	return result;
+}
+
+var contentWillResize = function(targetWidth, targetHeight) {
+	var w_Width  = jQuery(Lightbox.frame).width();
+	var w_Height = jQuery(Lightbox.frame).height();
+  var targetDimensions = Lightbox.getComputedDimensions(targetWidth, targetHeight, 1);
+	return !(targetDimensions.x  == w_Width && targetDimensions.y == w_Height);
+};
+
+
+var showContent = function(newContent_,
+                           canBeFaded,
+                           canBeSlided,
+                           targetWidth,
+                           targetHeight,
+                           title,
+                           status,
+                           callback)
+{
+  var oldTitle = Lightbox.metaData.title || " ";
+  Lightbox.runCommand('hideProgress');
+  targetWidth  = targetWidth  || Lightbox.metaData.targetWidth  || 1200;
+  targetHeight = targetHeight || Lightbox.metaData.targetHeight || 800;
+  title        = title        || Lightbox.metaData.title        || ' ';
+  status       = status       || Lightbox.metaData.status       || null;
+
+	// this will help to deside how to hide the element
+  newContent_.data('canBeFaded', canBeFaded);
+
+  var oldContent    = jQuery('.oldContent');
+  var newContent    = newContent_;
+  var willResize    = contentWillResize(targetWidth, targetHeight);
+  var oldCanBeFaded = oldContent.data('canBeFaded') || false;
+  var newCanBeFaded = newContent.data('canBeFaded') || false;
+  var canAlphaBlend = (oldCanBeFaded || newCanBeFaded) && !willResize;
+
+  //Lightbox.setMetaData({ // remember this for next resizes
+  //  width  : targetWidth,
+  // height : targetHeight
+  //});
+  if (oldContent.length > 0) {
+    Lightbox.dispatch('contentUnload.dmxLightboxViewer', {content:oldContent});
+  }
+
+  if (canAlphaBlend) {
+    if (newCanBeFaded) {
+      fadeInNewAndShowNew();
+    } else if (oldCanBeFaded) {
+      fadeOutOldAndShowNew();
+    }
+  } else {
+    if (willResize) {
+      fadeOutOld(function(){
+        removeOldContent();
+        Lightbox.addEventListener(
+          'resizeEnd.dmxLightboxViewer resizeSkip.dmxLightboxViewer',
+          function() {
+            Lightbox.removeEventListener('resizeEnd.dmxLightboxViewer');
+            Lightbox.removeEventListener('resizeSkip.dmxLightboxViewer');
+            if (newCanBeFaded) {
+              fadeInNew(finalize);
+            } else {
+              newContent.css({zIndex:2, visibility:'visible', top:0, left:0}).show();
+              finalize();
+            }
+          },
+          true
+        );
+        Lightbox.runCommand('resizeTo');
+      });
+    } else {
+      oldContent.css({zIndex:1, visibility:'visible'});
+      newContent.css({zIndex:2, visibility:'visible', top:0, left:0}).show();
+      if (newCanBeFaded) {
+        newContent.css({opacity:1});
+      }
+      removeOldContent();
+      finalize();
+    }
+  }
+
+  function fadeInNewAndShowNew() {
+    oldContent.css({zIndex:1, visibility:'visible'});
+    newContent.css({zIndex:2, opacity:0, visibility:'visible', top:0, left:0});
+    fadeInNew(function(){
+      removeOldContent();
+      finalize();
+    });
+  }
+
+  function fadeOutOldAndShowNew() {
+    oldContent.css({zIndex:2, opacity:1, visibility:'visible'});
+    newContent.css({zIndex:1, visibility:'visible', top:0, left:0});
+    fadeOutOld(function(){
+      removeOldContent();
+      finalize();
+    });
+  }
+
+  function fadeOutOld(callback) {
+		if (oldContent.hasClass("initial")) {
+			//Lightbox.runCommand('hideProgress');
+			return callback();
+		}
+    //Lightbox.runCommand('showProgress');
+    //Lightbox.runCommand('hideProgress');
+    oldContent.css({opacity:1, display:'block', visibility:'visible'}).animate(
+      {opacity:0}, Lightbox.options.transitionTime, 'linear', callback
+    );
+  }
+
+  function fadeInNew(callback) {
+    //Lightbox.runCommand('hideProgress');
+    newContent.css({opacity:0, display:'block', visibility:'visible', top:0, left:0}).animate(
+      {opacity:1}, Lightbox.options.transitionTime, 'linear', callback
+    );
+  }
+
+  function removeOldContent() {
+    oldContent/*.stop(true, false)*/.remove();
+    Lightbox.dispatch('contentRemoved');
+    //oldContent = null;
+  }
+
+  function finalize() {
+    newContent.removeClass('content').addClass('oldContent');
+    //Lightbox.runCommand('hideProgress');
+    Lightbox.runCommand(
+      'setTitle' ,
+      Lightbox.metaData.title != oldTitle
+      ? Lightbox.metaData.title
+      : title || Lightbox.metaData.title || ' '
+    );
+    //Lightbox.runCommand('setTitle' , title  || ''  );
+    Lightbox.runCommand('setStatus', status || null);
+    Lightbox.dispatch('loaderFinished');
+    if (typeof callback == "function") {
+      callback();
+    }
+  }
+
+};
+
+function cleanUp() {
+  jQuery('.content').removeClass('content').addClass('oldContent');
+  FrameObserver.releaseEvents();
+}
+
+function dirname(path) {
+  path = String(path);
+  if (path.indexOf('/') == -1) {
+    return path;
+  }
+  return path.substr(0, path.lastIndexOf('/'));
+}
+
+jQuery(function() {
+	if (parent && parent.DMX && parent.DMX.Lightbox && parent.DMX.Lightbox.instance) {
+    Lightbox = parent.DMX.Lightbox.instance;
+    Lightbox.setViewer(window);
+		var CONFIG = Lightbox.config();
+		jQuery('body').css({backgroundColor: CONFIG.bgColor});
+		if (CONFIG.noContextMenu) {
+			var body = document.getElementById('content');
+			body.oncontextmenu = function(e) {
+				return false;
+			};
+		}
+    }
+});
+</script>
+</head>
+<body id="content">
+    <span class="oldContent initial"> </span>
+</body>
+</html>

@@ -1,0 +1,55 @@
+/* CSS Document */
+
+section {
+	padding:40px 0;
+}
+#prod-info h2 {
+	    line-height: 1;
+    margin: 15px 0;
+    text-transform: uppercase;
+	font-weight:400;
+	font-size:24px;
+}
+#prod-info p {
+    font-size: 14px;
+	font-weight:300;
+}
+
+h3.price {
+	    line-height: 1;
+    margin: 15px 0;
+    text-transform: uppercase;
+	font-weight:400;
+	font-size:22px;
+}
+.btn-group.margins > .btn{
+	margin-right:5px;
+	width:42px;
+}
+#add-cart {
+	font-weight:700;
+	 margin: 20px 0;
+}
+th {
+	text-align:center;
+	color:#fff;
+	background:#008CBA !important;
+}
+.table {
+	margin:0;
+	padding:0;
+}
+.grey {
+background:#F1F1F1;
+}
+.related {
+	margin-bottom:25px;
+}
+footer {
+    background: none repeat scroll 0 0 #3e3f3a;
+    color: #777;
+    font-size: 11px;
+    padding: 15px 0 10px;
+    text-align: center;
+    text-transform: uppercase;
+}

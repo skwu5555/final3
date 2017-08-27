@@ -1,0 +1,206 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="MSThemeCompatible" content="yes" />
+    <!--<meta http-equiv="X-UA-Compatible" content="IE=7" />-->
+		<title>DMXzone Lightbox</title>
+		<style type="text/css">
+		html {
+      overflow-x : hidden;
+    }
+		body {
+			font-family      : Tahoma, Arial, Helvetica, sans-serif;
+			font-size        : 11px; 
+			margin           : 0;
+			padding          : 1px 0 2px 0;
+      background-color : transparent;
+			white-space:normal !important;
+			background-color : #EEE;
+			overflow-x       : auto;
+		}
+		a {
+			border : 0px none;
+			zoom:1;
+		}
+		a img {
+			border : 0px solid black;
+			zoom:1;
+		}
+		.thumb {
+			margin:1px 0 0 1px;
+			border:1px solid transparent;
+			float:left;
+			-webkit-border-radius:5px;
+			-moz-border-radius:5px;
+			-o-border-radius:5px;
+			border-radius:5px;
+			zoom:1;
+			table-layout:fixed;
+		}
+		.thumb td {
+			text-align:center;
+			background:#EEE;
+			background:url(styles/default/transparent_black.png);
+			-webkit-border-radius:3px;
+			-moz-border-radius:3px;
+			-o-border-radius:3px;
+			border-radius:3px;
+			zoom:1;
+		}
+		-->
+		</style>
+		<style id="thumbGallDynamicStyle" type="text/css">
+    .thumb td img                  { max-width:100px;	max-height:100px; }
+    .thumb td                      { width:110px;height:110px;          }
+    .thumb                         { width:112px;height:112px;          }
+    .thumb td img.thumb-vertical   { height:100px;                      }
+    .thumb td img.thumb-horizontal { width:100px;                       }
+    </style>
+		<script language="javascript" type="text/javascript" src="../../../ScriptLibrary/jquery-latest.pack.js"></script>
+    <script language="javascript" type="text/javascript" src="../../../dmx/dmx.core.js"></script>
+    <script type="text/javascript">
+		var OPTIONS  = {};
+		var LIGHTBOX = parent.parent.DMX.Lightbox.instance;
+		
+    jQuery(window).load(function() {
+			OPTIONS  = LIGHTBOX.getCurrentConfig();
+      jQuery('body').css({backgroundColor:OPTIONS.bgColor})
+			LIGHTBOX.setMetaData({
+				width      : 722,
+				height     : jQuery.browser.msie ? 471 : 462,
+				keepAspect : false,
+        status     : ' ',
+				title      : 'DMXzone Lightbox - Index Page'
+			});
+      
+      var tmp = {};
+      LIGHTBOX.items.each(function(i) {
+				if (!this.href) return; 
+        
+        if (tmp[this.href] && jQuery('> img.original', tmp[this.href]).length > 0) return;
+        
+        var orig  = jQuery(this);
+				var clone = orig.clone();
+				var origImg = jQuery('> img', orig);
+        
+        clone.attr('href', orig[0].href);
+        clone.html('<img />');
+        
+        clone.find('> img').attr('src', DMX.toAbsolutePath(
+          origImg.length > 0 ? origImg[0].src + '?n=' + new Date().getTime() : 'package_network.png'
+        ))
+        .addClass(
+          jQuery.browser.msie && jQuery.browser.version < 7
+          ? origImg.length > 0 && origImg[0].offsetWidth > origImg[0].offsetHeight ? 'thumb-horizontal' : 'thumb-vertical'
+          : ''
+        )
+        .addClass(
+          origImg.length > 0 ? 'original' : 'generic'
+        );
+        
+				clone.removeAttr('onclick').click(function() {
+					LIGHTBOX.goTo(i);
+					return false;
+				});
+				
+        tmp[this.href] = clone;
+			});
+      for (var i in tmp) tmp[i].appendTo(jQuery('body'));
+      tmp = null;
+      
+			thubnalsGallery(jQuery('a'), jQuery);
+    });
+    
+		function thubnalsGallery(j, jq) {
+			j.filter('a').each(function(i) {
+				var wrapper = jq(
+          '<table class="thumb" align="left" border="0" cellpadding="1" cellspacing=' +
+          '"1"><tr><td valign="middle"></td></tr></table>'
+        )
+        .css({borderColor:OPTIONS.bgColor, cursor: 'pointer'})
+        .click(function() {
+          LIGHTBOX.goTo(i);
+          return false;
+        })
+        .bind('mouseenter',
+          function() {
+            jQuery(this).css({borderColor: (isLight(OPTIONS.bgColor) ? '#000' : '#FFF')});
+          }
+        )
+        .bind('mouseleave',  function() {
+            jQuery(this).css({borderColor: OPTIONS.bgColor});
+          }
+        )
+        .attr('title', DMX.basename(this.href))
+        .appendTo(jq(this).parent());
+        
+        jq('td', wrapper).append(jq(this));
+        
+        if (jQuery.browser.msie && jQuery.browser.version < 7) {
+          jq('td', wrapper).css({
+            background: 'none',
+            filter: 'progid:DXImageTransform.Microsoft.AlphaImageLoader(src="styles/default/transparent_black.png", sizingMethod="scale")',
+            zoom  : 1
+          });
+        }
+			});	
+      jQuery('body').append('<br clear="all" />');
+			window.setTimeout('setThumbnailSize()', 2000);
+		}	
+		
+		function setThumbnailSize(value) {
+			if (!value) {
+					value = 100;//jQuery('.sliderButton')[0].offsetLeft;
+			}
+			value = parseInt(value, 10);
+			if (isNaN(value) || value < 1 || value > 250) {
+					value = 100;
+			} 
+			
+			var sheet = jQuery('#thumbGallDynamicStyle')[0].sheet || document.styleSheets.thumbGallDynamicStyle;
+			var rules = sheet.rules || sheet.cssRules;
+			
+			if (jQuery.browser.msie && jQuery.browser.version < 7) {
+				rules[3].style.cssText = 'height:' + value + 'px !important;';
+				rules[4].style.cssText = 'width:' + value + 'px !important;';
+			} else {
+				rules[0].style.cssText = 'max-width:' + value + 'px;max-height:' + value + 'px;';
+			}
+			rules[1].style.cssText = 'width:' + (value + 10) + 'px;height:' + (value + 10) + 'px;';
+			rules[2].style.cssText = 'width:' + (value + 12) + 'px;height:' + (value + 12) + 'px;';
+		}
+    
+    function HexToR(h) {return parseInt((cutHex(h)).substring(0,2),16);}
+    function HexToG(h) {return parseInt((cutHex(h)).substring(2,4),16);}
+    function HexToB(h) {return parseInt((cutHex(h)).substring(4,6),16);}
+    function cutHex(h) {return h.charAt(0)=="#" ? h.substring(1,7) : h;}
+
+    function isLight(hexcolor) {
+    	hexcolor = fixColorValue(hexcolor);
+    	if ((HexToR(hexcolor) + HexToG(hexcolor) + HexToB(hexcolor)) / 3 > 100) {
+    		return true;
+    	}
+    	return false;
+    }
+
+    // converts #FFCCDD from FCD or #FCD
+    function fixColorValue(v) {
+    	v = String(v)
+    	if (v == 'transparent' || (new RegExp("^\\s*rgba?\\(", "i")).test(v)) return v;
+    	v = v.replace(/^#/, '');
+    	if (v.length == 3) {
+    		v = v.charAt(0) + 
+    				v.charAt(0) + 
+    				v.charAt(1) + 
+    				v.charAt(1) + 
+    				v.charAt(2) + 
+    				v.charAt(2);
+    	}
+    	return '#' + v;
+    } 
+		</script>
+	</head>
+	<body>
+	</body>
+</html>
